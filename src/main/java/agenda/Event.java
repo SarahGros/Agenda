@@ -1,9 +1,6 @@
 package agenda;
 
 import java.time.*;
-import java.time.chrono.ChronoLocalDate;
-import java.time.chrono.ChronoLocalDateTime;
-import static jdk.jfr.internal.handlers.EventHandler.duration;
 
 public class Event {
 
@@ -11,17 +8,16 @@ public class Event {
      * The myTitle of this event
      */
     private String myTitle;
-    
+
     /**
      * The starting time of the event
      */
     private LocalDateTime myStart;
 
     /**
-     * The durarion of the event 
+     * The durarion of the event
      */
     private Duration myDuration;
-
 
     /**
      * Constructs an event
@@ -43,36 +39,19 @@ public class Event {
      * @return true if the event occurs on that day, false otherwise
      */
     public boolean isInDay(LocalDate aDay) {
-        LocalDateTime end = this.myStart.plus(this.myDuration);
-        if(aDay.isBefore((ChronoLocalDate)(ChronoLocalDateTime)end) && aDay.isAfter((ChronoLocalDate)(ChronoLocalDateTime)this.myStart)){
-        return true;
-        }else{
-        return false;
+        if (this.myStart.getYear() != aDay.getYear() || !this.myStart.getMonth().equals(aDay.getMonth()) || this.myStart.getDayOfMonth() != aDay.getDayOfMonth()) {
+            return false;
+        } else {
+            return true;
         }
     }
-   
-    /**
-     * @return the myTitle
-     */
-    public String getTitle() {
-        return myTitle;
-    }
 
-    /**
-     * @return the myStart
-     */
-    public LocalDateTime getStart() {
-        return myStart;
-    }
-
-
-    /**
-     * @return the myDuration
-     */
-    public Duration getDuration() {
-        return myDuration;
-    }
-
-   
-    
+    // public boolean isInDay(LocalDate aDay) {
+    //   LocalDateTime end = this.myStart.plus(this.myDuration);
+    // if(aDay.isBefore((ChronoLocalDate)(ChronoLocalDateTime)end) && aDay.isAfter((ChronoLocalDate)(ChronoLocalDateTime)this.myStart)){
+    //return true;
+    //     }else{
+    //   return false;
+    //    }
+    // }
 }

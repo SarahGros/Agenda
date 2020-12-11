@@ -54,4 +54,16 @@ public class Event {
     //   return false;
     //    }
     // }
+
+    public String getMyTitle() {
+        return myTitle;
+    }
+
+    public LocalDateTime getMyStart() {
+        return myStart;
+    }
+
+    public Duration getMyDuration() {
+        return myDuration;
+    }
 }

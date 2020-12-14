@@ -39,21 +39,15 @@ public class Event {
      * @return true if the event occurs on that day, false otherwise
      */
     public boolean isInDay(LocalDate aDay) {
-        if (this.myStart.getYear() != aDay.getYear() || !this.myStart.getMonth().equals(aDay.getMonth()) || this.myStart.getDayOfMonth() != aDay.getDayOfMonth()) {
-            return false;
-        } else {
-            return true;
+        LocalDateTime dayTimeEnd = myStart.plus(myDuration);
+        boolean boo = false;
+        if (myStart.toLocalDate().isBefore(aDay) || myStart.toLocalDate().isEqual(aDay)) {
+            if (dayTimeEnd.toLocalDate().isAfter(aDay) || dayTimeEnd.toLocalDate().isEqual(aDay)) {
+                boo = true;
+            }
         }
+        return boo;
     }
-
-    // public boolean isInDay(LocalDate aDay) {
-    //   LocalDateTime end = this.myStart.plus(this.myDuration);
-    // if(aDay.isBefore((ChronoLocalDate)(ChronoLocalDateTime)end) && aDay.isAfter((ChronoLocalDate)(ChronoLocalDateTime)this.myStart)){
-    //return true;
-    //     }else{
-    //   return false;
-    //    }
-    // }
 
     public String getMyTitle() {
         return myTitle;
@@ -65,5 +59,10 @@ public class Event {
 
     public Duration getMyDuration() {
         return myDuration;
+    }
+    
+    @Override
+    public String toString() {
+        return "Event : " + "Nom =" + myTitle + '.';
     }
 }

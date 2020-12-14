@@ -4,6 +4,8 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Description : A repetitive event that terminates after a given date, or after
@@ -27,6 +29,7 @@ public class FixedTerminationEvent extends RepetitiveEvent {
      */
     private LocalDate terminationInclusive;
     private long numberOfOccurrences;
+    private List<LocalDate> exceptions = new ArrayList<>();
 
     public FixedTerminationEvent(String title, LocalDateTime start, Duration duration, ChronoUnit frequency, LocalDate terminationInclusive) {
         super(title, start, duration, frequency);
@@ -58,13 +61,66 @@ public class FixedTerminationEvent extends RepetitiveEvent {
      * @return the termination date of this repetitive event
      */
     public LocalDate getTerminationDate() {
-        // TODO : implémenter cette méthode
-        throw new UnsupportedOperationException("Pas encore implémenté");
+         LocalDate date = this.getMyStart().plus(this.numberOfOccurrences-1,frequency).toLocalDate();
+        return date;
     }
 
     public long getNumberOfOccurrences() {
+        long occurrences = this.numberOfOccurrences = this.getFrequency().between(this.getMyStart().toLocalDate(), this.terminationInclusive)+1;
         return numberOfOccurrences;
     }
 
+    public void addException(LocalDate date) {
+        exceptions.add(date);
+    }
 
+    @Override
+    public boolean isInDay(LocalDate aDay) {
+        LocalDateTime tampon = this.getMyStart();
+        Duration myDuration = this.getMyDuration();
+        boolean retour = false;
+        for (LocalDate date : exceptions) {
+            if (date.isEqual(aDay)) {
+                return false;
+            }
+        }
+        if (tampon.toLocalDate().isEqual(aDay)) {
+            return true;
+        }
+        if (this.terminationInclusive != null) {
+            if (dateInferiorTerminationInclusive(aDay) || dateInferiorOrEqualToNOccurence(aDay)) {
+                while (tampon.toLocalDate().isBefore(aDay) || tampon.toLocalDate().isEqual(aDay)) {
+                    LocalDateTime dayTimeEnd = tampon.plus(myDuration);
+                    if (tampon.toLocalDate().isBefore(aDay) || tampon.toLocalDate().isEqual(aDay)) {
+                        if (dayTimeEnd.toLocalDate().isAfter(aDay) || dayTimeEnd.toLocalDate().isEqual(aDay)) {
+                            retour = true;
+                        }
+                    }
+                    tampon = tampon.plus(1, this.frequency);
+                }
+            }
+
+        } else {
+            if (dateInferiorOrEqualToNOccurence(aDay)) {
+                while (tampon.toLocalDate().isBefore(aDay) || tampon.toLocalDate().isEqual(aDay)) {
+                    LocalDateTime dayTimeEnd = tampon.plus(myDuration);
+                    if (tampon.toLocalDate().isBefore(aDay) || tampon.toLocalDate().isEqual(aDay)) {
+                        if (dayTimeEnd.toLocalDate().isAfter(aDay) || dayTimeEnd.toLocalDate().isEqual(aDay)) {
+                            retour = true;
+                        }
+                    }
+                    tampon = tampon.plus(1, this.frequency);
+                }
+            }
+        }
+        return retour;
+    }
+
+    private boolean dateInferiorTerminationInclusive(LocalDate aDay) {
+        return this.terminationInclusive.isAfter(aDay) || this.terminationInclusive.isEqual(aDay);
+    }
+
+    private boolean dateInferiorOrEqualToNOccurence(LocalDate aDay) {
+        return (this.getMyStart().plus(this.numberOfOccurrences, this.frequency).toLocalDate().isAfter(aDay)) || (this.getMyStart().plus(this.numberOfOccurrences, this.frequency).toLocalDate().isEqual(aDay));
+    }
 }

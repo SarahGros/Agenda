@@ -8,6 +8,7 @@ import java.time.temporal.ChronoUnit;
  * Description : A repetitive Event
  */
 public class RepetitiveEvent extends Event {
+
     /**
      * Constructs a repetitive event
      *
@@ -21,11 +22,13 @@ public class RepetitiveEvent extends Event {
      * <LI>ChronoUnit.MONTHS for monthly repetitions</LI>
      * </UL>
      */
-    private ChronoUnit frequency;
+    protected ChronoUnit frequency;
+    private List<LocalDate> exceptions = new ArrayList<>();
+
     public RepetitiveEvent(String title, LocalDateTime start, Duration duration, ChronoUnit frequency) {
         super(title, start, duration);
-        // TODO : implémenter cette méthode
-       this.frequency = frequency;
+        // DONE : implémenter cette méthode
+        this.frequency = frequency;
     }
 
     /**
@@ -34,10 +37,7 @@ public class RepetitiveEvent extends Event {
      * @param date the event will not occur at this date
      */
     public void addException(LocalDate date) {
-       
-        Duration d = Duration.between(date, this.getMyStart());
-       RepetitiveEvent debut = new RepetitiveEvent(this.getMyTitle() , this.getMyStart(), d, this.getFrequency()); 
-       RepetitiveEvent fin = new RepetitiveEvent(this.getMyTitle() , this.getMyStart(), this.getMyDuration().minus(d), this.getFrequency());
+        exceptions.add(date);
     }
 
     /**
@@ -45,8 +45,35 @@ public class RepetitiveEvent extends Event {
      * @return the type of repetition
      */
     public ChronoUnit getFrequency() {
-       
+
         return this.frequency;
     }
 
+    public boolean isInDay(LocalDate aDay) {
+        LocalDateTime myStart = this.getMyStart();
+        Duration myDuration = this.getMyDuration();
+        LocalDateTime dayTimeEnd = myStart.plus(myDuration);
+        boolean retour = false;
+        for (LocalDate date : exceptions) {
+            if (date.isEqual(aDay)) {
+                return false;
+            }
+        }
+        if (myStart.toLocalDate().isEqual(aDay)) {
+            return true;
+        }
+
+        while (myStart.toLocalDate().isBefore(aDay)) {
+            dayTimeEnd = myStart.plus(myDuration);
+
+            if (myStart.toLocalDate().isBefore(aDay) || myStart.toLocalDate().isEqual(aDay)) {
+                if (dayTimeEnd.toLocalDate().isAfter(aDay) || dayTimeEnd.toLocalDate().isEqual(aDay)) {
+                    retour = true;
+                }
+            }
+            myStart = myStart.plus(1, frequency);
+        }
+        return retour;
+
+    }
 }
